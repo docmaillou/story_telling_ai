@@ -7,10 +7,9 @@
   "scripts": {
     "dev": "vite",
     "build": "vite build",
-    "build:github": "vite build --base=/story-teller-app/",
     "lint": "eslint .",
     "preview": "vite preview",
-    "predeploy": "npm run build:github",
+    "predeploy": "npm run build",
     "deploy": "gh-pages -d dist"
   },
   "dependencies": {
