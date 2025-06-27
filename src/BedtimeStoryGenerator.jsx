@@ -111,74 +111,19 @@ const TRANSLATIONS = {
     "sweetDreams": "¡Dulces sueños!",
     "createAnotherStory": "Crear Otra Historia",
     "errorMessage": "Lo siento, hubo un error al generar tu historia. Por favor, inténtalo de nuevo."
-  },
-  "fr-FR": {
-    "ageTitle": "Quel âge a votre petit bout ?",
-    "ageSubtitle": "Cela nous aide à choisir le vocabulaire et les thèmes parfaits",
-    "agePlaceholder": "Entrez l'âge (2-12)",
-    "continueButton": "Continuer",
-    "step1of5": "Étape 1 sur 5",
-    "genderTitle": "Parlez-nous de votre enfant",
-    "genderSubtitle": "Nous utiliserons les bons pronoms et la bonne perspective",
-    "boy": "garçon",
-    "girl": "fille",
-    "other": "autre",
-    "backButton": "Retour",
-    "step2of5": "Étape 2 sur 5",
-    "interestsTitle": "Qu'est-ce que votre enfant adore ?",
-    "interestsSubtitle": "Choisissez 1 à 3 choses qui stimulent son imagination",
-    "animals": "Animaux",
-    "spaceStars": "Espace et Étoiles",
-    "oceanSeaLife": "Océan et Vie Marine",
-    "dinosaurs": "Dinosaures",
-    "magicFantasy": "Magie et Fantaisie",
-    "sports": "Sports",
-    "music": "Musique",
-    "artDrawing": "Art et Dessin",
-    "natureForest": "Nature et Forêt",
-    "superheroes": "Super-héros",
-    "vehiclesTransportation": "Véhicules et Transport",
-    "cookingFood": "Cuisine et Nourriture",
-    "scienceExperiments": "Science et Expériences",
-    "step3of5": "Étape 3 sur 5",
-    "styleTitle": "Quel type d'histoire aimeriez-vous ?",
-    "styleSubtitle": "Choisissez le ton qui convient le mieux au coucher",
-    "funnyLabel": "Drôle et Amusante",
-    "funnyDesc": "Des rires et de la joie tout au long",
-    "adventurousLabel": "Aventureuse et Excitante",
-    "adventurousDesc": "Des quêtes palpitantes et des découvertes",
-    "gentleLabel": "Douce et Apaisante",
-    "gentleDesc": "Paisible et relaxante",
-    "magicalLabel": "Magique et Enchanteresse",
-    "magicalDesc": "Fantaisie et émerveillement",
-    "educationalLabel": "Éducative et Instructive",
-    "educationalDesc": "Des faits amusants et des connaissances",
-    "step4of5": "Étape 4 sur 5",
-    "lessonTitle": "Quelle leçon devrions-nous inclure ?",
-    "lessonSubtitle": "Quel message important devrait-il apprendre ?",
-    "lessonPlaceholder": "Exemples : Être gentil avec les autres, essayer de nouvelles choses, partager c'est important, être courageux quand on a peur...",
-    "createStoryButton": "Créer l'Histoire",
-    "step5of5": "Étape 5 sur 5",
-    "generatingTitle": "Création de votre histoire magique...",
-    "generatingSubtitle": "Notre magie des contes est à l'œuvre...",
-    "storyReadyTitle": "Votre histoire du soir est prête !",
-    "storyReadySubtitle": "De beaux rêves ne sont qu'à une histoire de distance !",
-    "sweetDreams": "Fais de beaux rêves !",
-    "createAnotherStory": "Créer une Autre Histoire",
-    "errorMessage": "Désolé, il y a eu une erreur lors de la génération de votre histoire. Veuillez réessayer."
   }
 };
 
-const appLocale = 'fr-FR'; // Configuration pour le français par défaut
-const browserLocale = navigator.languages?.[0] || navigator.language || 'fr-FR';
+const appLocale = '{{APP_LOCALE}}';
+const browserLocale = navigator.languages?.[0] || navigator.language || 'en-US';
 const findMatchingLocale = (locale) => {
   if (TRANSLATIONS[locale]) return locale;
   const lang = locale.split('-')[0];
   const match = Object.keys(TRANSLATIONS).find(key => key.startsWith(lang + '-'));
-  return match || 'fr-FR'; // Français par défaut au lieu de l'anglais
+  return match || 'en-US';
 };
-const locale = findMatchingLocale(appLocale);
-const t = (key) => TRANSLATIONS[locale]?.[key] || TRANSLATIONS['fr-FR'][key] || key;
+const locale = (appLocale !== '{{APP_LOCALE}}') ? findMatchingLocale(appLocale) : findMatchingLocale(browserLocale);
+const t = (key) => TRANSLATIONS[locale]?.[key] || TRANSLATIONS['en-US'][key] || key;
 
 const BedtimeStoryGenerator = () => {
   console.log('BedtimeStoryGenerator component loaded');
@@ -230,157 +175,69 @@ const BedtimeStoryGenerator = () => {
     setCurrentStep(5);
 
     try {
-      // Génération d'une histoire personnalisée et engageante
+      // Génération d'une histoire personnalisée avec des noms appropriés
       const generatePersonalizedStory = () => {
+        // Noms selon le genre
+        const names = {
+          boy: ['Alex', 'Lucas', 'Théo', 'Nathan', 'Hugo', 'Louis', 'Arthur', 'Gabriel', 'Raphaël', 'Tom'],
+          girl: ['Emma', 'Léa', 'Chloé', 'Manon', 'Sarah', 'Jade', 'Lola', 'Zoé', 'Alice', 'Inès'],
+          other: ['Alex', 'Charlie', 'Sam', 'Jordan', 'Riley', 'Avery', 'Quinn', 'Taylor', 'Morgan', 'Casey']
+        };
+
+        const selectedNames = names[formData.gender] || names.other;
+        const characterName = selectedNames[Math.floor(Math.random() * selectedNames.length)];
+
         const genderInfo = {
-          boy: { article: 'un petit garçon', pronoun: 'il', possessive: 'son', direct: 'le' },
-          girl: { article: 'une petite fille', pronoun: 'elle', possessive: 'sa', direct: 'la' },
-          other: { article: 'un enfant', pronoun: 'iel', possessive: 'son', direct: 'l\'' }
+          boy: { article: 'un petit garçon', pronoun: 'il', possessive: 'son', direct: 'le', past: '', agreement: '' },
+          girl: { article: 'une petite fille', pronoun: 'elle', possessive: 'sa', direct: 'la', past: 'e', agreement: 'e' },
+          other: { article: 'un enfant', pronoun: 'iel', possessive: 'son', direct: 'l\'', past: '', agreement: '' }
         };
 
         const gender = genderInfo[formData.gender] || genderInfo.other;
         const mainInterest = formData.interests[0] || 'les aventures';
 
-        // Histoires personnalisées selon les intérêts
+        // Histoire personnalisée selon l'intérêt principal
         const storyTemplates = {
-          'Animaux': () => `Il était une fois ${gender.article} nommé${formData.gender === 'girl' ? 'e' : ''} Alex, âgé${formData.gender === 'girl' ? 'e' : ''} de ${formData.age} ans, qui rêvait de parler aux animaux.
+          'Animaux': () => `Il était une fois ${gender.article} nommé${gender.agreement} ${characterName}, âgé${gender.agreement} de ${formData.age} ans, qui rêvait de parler aux animaux.
 
-Un matin, en se promenant dans la forêt enchantée près de chez ${gender.possessive} grand-mère, Alex découvrit un petit renard blessé caché sous un buisson. ${gender.pronoun.charAt(0).toUpperCase() + gender.pronoun.slice(1)} s'approcha doucement et, à ${gender.possessive} grande surprise, ${gender.pronoun} entendit le renard murmurer : "S'il te plaît, aide-moi..."
+Un matin, en se promenant dans la forêt enchantée près de chez ${gender.possessive} grand-mère, ${characterName} découvrit un petit renard blessé caché sous un buisson. ${gender.pronoun.charAt(0).toUpperCase() + gender.pronoun.slice(1)} s'approcha doucement et, à ${gender.possessive} grande surprise, ${gender.pronoun} entendit le renard murmurer : "S'il te plaît, aide-moi..."
 
-"Tu peux parler !" s'exclama Alex, les yeux écarquillés.
+"Tu peux parler !" s'exclama ${characterName}, les yeux écarquillés.
 
 "Bien sûr que je peux parler," répondit le renard avec un petit sourire. "Tous les animaux peuvent parler, mais seuls les enfants au cœur pur peuvent nous entendre."
 
-Alex soigna délicatement la patte du renard avec des feuilles médicinales que lui montra un vieux hibou sage. En retour, les animaux de la forêt lui enseignèrent leurs secrets : comment les écureuils cachent leurs noisettes, pourquoi les oiseaux chantent au lever du soleil, et comment ${formData.lesson}.
+${characterName} soigna délicatement la patte du renard avec des feuilles médicinales que lui montra un vieux hibou sage. En retour, les animaux de la forêt lui enseignèrent leurs secrets et surtout que ${formData.lesson}.
 
-Quand vint l'heure de rentrer, le renard dit : "Alex, tu as appris aujourd'hui que ${formData.lesson}. N'oublie jamais cette leçon, car elle te guidera dans toutes tes aventures."
+Quand vint l'heure de rentrer, le renard dit : "${characterName}, tu as appris aujourd'hui une leçon précieuse. N'oublie jamais cette sagesse, car elle te guidera dans toutes tes aventures."
 
-De retour chez ${gender.possessive} grand-mère, Alex s'endormit en souriant, sachant qu'${gender.pronoun} avait trouvé des amis pour la vie et une sagesse précieuse.`,
+De retour chez ${gender.possessive} grand-mère, ${characterName} s'endormit en souriant, sachant qu'${gender.pronoun} avait trouvé des amis pour la vie.`,
 
-          'Espace et Étoiles': () => `Il était une fois ${gender.article} nommé${formData.gender === 'girl' ? 'e' : ''} Luna, âgé${formData.gender === 'girl' ? 'e' : ''} de ${formData.age} ans, qui passait ses nuits à observer les étoiles depuis ${gender.possessive} fenêtre.
-
-Une nuit particulièrement claire, une étoile filante s'arrêta juste devant ${gender.possessive} fenêtre et se transforma en une petite créature lumineuse aux ailes scintillantes.
-
-"Bonjour Luna ! Je suis Stella, gardienne des rêves stellaires. J'ai besoin de ton aide !" dit la créature d'une voix cristalline.
-
-"Mon aide ? Mais je ne suis qu'un${formData.gender === 'girl' ? 'e' : ''} enfant !" répondit Luna, émerveillé${formData.gender === 'girl' ? 'e' : ''}.
-
-"C'est exactement pour cela que j'ai besoin de toi. Les enfants ont l'imagination la plus pure de l'univers !"
-
-Stella emmena Luna dans un voyage extraordinaire à travers les constellations. Ensemble, ${gender.pronoun} visitèrent la Lune où vivaient des lapins argentés, dansèrent avec les anneaux de Saturne, et aidèrent à rallumer une étoile qui s'éteignait.
-
-"Comment peut-on rallumer une étoile ?" demanda Luna.
-
-"Avec de la gentillesse et en comprenant que ${formData.lesson}," expliqua Stella. "Chaque acte de bonté fait briller les étoiles plus fort."
-
-Luna apprit cette nuit-là que même les plus petites actions peuvent illuminer l'univers entier. Quand ${gender.pronoun} se réveilla dans ${gender.possessive} lit, une nouvelle étoile brillait dans le ciel, et Luna sut qu'${gender.pronoun} l'avait aidée à naître.`,
-
-          'Océan et Vie Marine': () => `Il était une fois ${gender.article} nommé${formData.gender === 'girl' ? 'e' : ''} Océane, âgé${formData.gender === 'girl' ? 'e' : ''} de ${formData.age} ans, qui collectionnait les coquillages sur la plage près de chez ${gender.possessive} tante.
-
-Un jour, en ramassant un coquillage particulièrement beau, ${gender.pronoun} entendit une petite voix qui en sortait : "Peux-tu m'aider à rentrer chez moi ?"
-
-À l'intérieur du coquillage vivait Perla, une minuscule sirène pas plus grande qu'un pouce, qui avait été séparée de sa famille lors d'une tempête.
-
-"Comment puis-je t'aider ?" demanda Océane, fasciné${formData.gender === 'girl' ? 'e' : ''}.
-
-"Il faut que tu me ramènes au récif de corail arc-en-ciel, mais le chemin est semé d'embûches," expliqua Perla.
-
-Océane plaça délicatement le coquillage dans un seau d'eau de mer et se dirigea vers les rochers où vivaient les créatures marines les plus sages. En chemin, ${gender.pronoun} rencontra un crabe grognon qui bloquait le passage.
-
-"Personne ne passe sans résoudre mon énigme !" grogna le crabe.
-
-Mais Océane, se souvenant que ${formData.lesson}, offrit au crabe une algue délicieuse qu'${gender.pronoun} avait trouvée. Touché par cette gentillesse, le crabe les laissa passer et leur indiqua même le chemin le plus sûr.
-
-Arrivés au récif, Perla retrouva sa famille qui organisa une fête sous-marine magnifique en l'honneur d'Océane. Les poissons multicolores dansèrent, les dauphins chantèrent, et Océane comprit que les plus belles aventures commencent par un geste de bonté.`,
-
-          'Magie et Fantaisie': () => `Il était une fois ${gender.article} nommé${formData.gender === 'girl' ? 'e' : ''} Merlin, âgé${formData.gender === 'girl' ? 'e' : ''} de ${formData.age} ans, qui trouvait toujours des objets étranges dans le grenier de ${gender.possessive} grand-père.
+          'Magie et Fantaisie': () => `Il était une fois ${gender.article} nommé${gender.agreement} ${characterName}, âgé${gender.agreement} de ${formData.age} ans, qui trouvait toujours des objets étranges dans le grenier de ${gender.possessive} grand-père.
 
 Ce jour-là, ${gender.pronoun} découvrit une vieille baguette magique couverte de poussière. Dès qu'${gender.pronoun} la toucha, la baguette se mit à briller et une voix douce résonna :
 
-"Enfin ! J'attendais le bon apprenti magicien depuis si longtemps !"
+"Enfin ! J'attendais ${gender.direct} bon${gender.agreement} apprenti${gender.agreement} magicien${formData.gender === 'girl' ? 'ne' : ''} depuis si longtemps !"
 
-"Apprenti magicien ? Moi ?" s'étonna Merlin.
+"Apprenti${gender.agreement} magicien${formData.gender === 'girl' ? 'ne' : ''} ? Moi ?" s'étonna ${characterName}.
 
 "Bien sûr ! Mais attention, la vraie magie ne vient pas de la baguette, elle vient du cœur," expliqua la voix mystérieuse.
 
-La baguette emmena Merlin dans un monde fantastique où les arbres avaient des visages souriants, où les nuages étaient des moutons volants, et où un dragon triste pleurait dans une caverne.
-
-"Pourquoi pleures-tu ?" demanda Merlin au dragon.
-
-"Tout le monde a peur de moi à cause de mes flammes, mais je ne veux faire de mal à personne. Je me sens si seul..." sanglota le dragon.
-
-Merlin comprit alors que ${formData.lesson}. ${gender.pronoun.charAt(0).toUpperCase() + gender.pronoun.slice(1)} organisa une grande fête où tous les habitants du royaume magique purent découvrir que le dragon était en réalité très gentil et qu'il pouvait faire griller les guimauves parfaitement !
+La baguette emmena ${characterName} dans un monde fantastique où ${gender.pronoun} rencontra un dragon triste qui pleurait dans une caverne. En comprenant que ${formData.lesson}, ${characterName} organisa une grande fête où tous découvrirent que le dragon était en réalité très gentil.
 
 "Tu vois," dit la baguette, "la plus grande magie, c'est de voir le bon côté des gens et de les aider à briller."
 
-Merlin rentra chez ${gender.possessive} grand-père avec une leçon précieuse et la certitude que la vraie magie existe dans chaque acte de gentillesse.`,
-
-          'Dinosaures': () => `Il était une fois ${gender.article} nommé${formData.gender === 'girl' ? 'e' : ''} Dino, âgé${formData.gender === 'girl' ? 'e' : ''} de ${formData.age} ans, qui rêvait de rencontrer de vrais dinosaures.
-
-Un jour, en visitant le musée avec ${gender.possessive} classe, ${gender.pronoun} toucha par accident un œuf de dinosaure fossilisé. Soudain, tout autour de ${gender.possessive} se mit à briller et ${gender.pronoun} se retrouva transporté${formData.gender === 'girl' ? 'e' : ''} à l'époque des dinosaures !
-
-"Où suis-je ?" se demanda Dino en voyant d'énormes fougères et des volcans au loin.
-
-Un petit tricératops s'approcha timidement. "Tu es dans notre monde ! Je m'appelle Tri. Tu n'as pas l'air d'un dinosaure..."
-
-"Je suis un humain du futur !" expliqua Dino, émerveillé${formData.gender === 'girl' ? 'e' : ''}.
-
-Tri présenta Dino à ses amis : Rex le tyrannosaure qui était en réalité très gentil et végétarien, Ptéra la ptérodactyle qui adorait faire des acrobaties, et Brachio le brachiosaure qui connaissait toutes les histoires anciennes.
-
-Mais un jour, un météore menaça de détruire leur vallée paisible. "Comment peut-on sauver notre maison ?" demanda Tri, inquiet.
-
-Dino se souvint alors que ${formData.lesson}. ${gender.pronoun.charAt(0).toUpperCase() + gender.pronoun.slice(1)} rassembla tous les dinosaures et leur montra qu'en travaillant ensemble, ils pouvaient dévier le météore vers l'océan.
-
-Grâce à leur coopération, la vallée fut sauvée. Avant de repartir dans ${gender.possessive} époque, Dino promit à ses amis dinosaures qu'${gender.pronoun} n'oublierait jamais leur leçon d'entraide.`,
-
-          'Sports': () => `Il était une fois ${gender.article} nommé${formData.gender === 'girl' ? 'e' : ''} Champion, âgé${formData.gender === 'girl' ? 'e' : ''} de ${formData.age} ans, qui adorait tous les sports mais qui avait peur de participer aux compétitions.
-
-Un matin, en se promenant dans le parc, ${gender.pronoun} découvrit un terrain de sport magique où tous les équipements parlaient !
-
-"Salut Champion !" dit le ballon de football. "Nous t'attendions !"
-
-"Vous m'attendiez ? Mais pourquoi ?" demanda Champion, surpris${formData.gender === 'girl' ? 'e' : ''}.
-
-"Parce que tu as l'esprit sportif le plus pur que nous ayons jamais vu," répondit la raquette de tennis. "Mais tu as peur de montrer tes talents."
-
-Les équipements magiques organisèrent alors des jeux spéciaux pour Champion. ${gender.pronoun.charAt(0).toUpperCase() + gender.pronoun.slice(1)} joua au football avec des nuages, fit de la course avec des lapins enchantés, et nagea avec des poissons arc-en-ciel.
-
-Mais le plus important arriva quand ${gender.pronoun} rencontra un autre enfant qui pleurait sur un banc. "Je ne suis bon dans aucun sport," sanglotait l'enfant.
-
-Champion comprit alors que ${formData.lesson}. ${gender.pronoun.charAt(0).toUpperCase() + gender.pronoun.slice(1)} invita l'enfant à jouer et lui montra que le plus important n'était pas de gagner, mais de s'amuser et de faire de son mieux.
-
-Ensemble, ils organisèrent un tournoi où tout le monde était gagnant, et Champion découvrit que partager sa passion était encore plus gratifiant que de jouer seul.`,
-
-          'Musique': () => `Il était une fois ${gender.article} nommé${formData.gender === 'girl' ? 'e' : ''} Mélodie, âgé${formData.gender === 'girl' ? 'e' : ''} de ${formData.age} ans, qui entendait de la musique partout : dans le chant des oiseaux, le bruit de la pluie, et même dans les pas des gens.
-
-Un jour, ${gender.pronoun} trouva un vieux piano abandonné dans le grenier. Dès qu'${gender.pronoun} appuya sur une touche, le piano se mit à parler !
-
-"Enfin quelqu'un qui comprend vraiment la musique !" s'exclama le piano. "Je suis Harmonius, et j'ai besoin de ton aide."
-
-"Mon aide ? Pour quoi faire ?" demanda Mélodie.
-
-"Le royaume de la Musique a perdu sa mélodie principale. Sans elle, tous les instruments du monde vont devenir silencieux pour toujours !"
-
-Harmonius emmena Mélodie dans un voyage musical extraordinaire. ${gender.pronoun.charAt(0).toUpperCase() + gender.pronoun.slice(1)} rencontra l'Orchestre des Nuages, dansa avec les Notes Volantes, et découvrit que la mélodie perdue était cachée dans le cœur d'un petit garçon triste qui avait arrêté de chanter.
-
-"Pourquoi ne chantes-tu plus ?" demanda Mélodie au garçon.
-
-"Parce que les autres se moquent de ma voix," répondit-il tristement.
-
-Mélodie comprit alors que ${formData.lesson}. ${gender.pronoun.charAt(0).toUpperCase() + gender.pronoun.slice(1)} organisa un concert où chaque voix était unique et précieuse, montrant au garçon que sa mélodie était exactement ce dont le monde avait besoin.
-
-Quand la mélodie fut restaurée, tout l'univers se remit à chanter, et Mélodie apprit que la plus belle musique vient du cœur.`
+${characterName} rentra chez ${gender.possessive} grand-père avec une leçon précieuse et la certitude que la vraie magie existe dans chaque acte de gentillesse.`
         };
 
-        // Sélectionner le template approprié ou utiliser une histoire générique
+        // Utiliser le template approprié ou une histoire générique
         const storyGenerator = storyTemplates[mainInterest] || (() =>
-          `Il était une fois ${gender.article} extraordinaire nommé${formData.gender === 'girl' ? 'e' : ''} Sam, âgé${formData.gender === 'girl' ? 'e' : ''} de ${formData.age} ans, qui adorait ${formData.interests.join(', ')}.
+          `Il était une fois ${gender.article} extraordinaire nommé${gender.agreement} ${characterName}, âgé${gender.agreement} de ${formData.age} ans, qui adorait ${formData.interests.join(', ')}.
 
 Un jour, ${gender.pronoun} découvrit un monde secret où ${gender.possessive} passion pour ${mainInterest} ${gender.pronoun} menait vers une aventure incroyable. Dans ce monde merveilleux, ${gender.pronoun} rencontra des créatures fantastiques qui lui enseignèrent que ${formData.lesson}.
 
-Grâce à cette précieuse leçon, Sam devint un${formData.gender === 'girl' ? 'e' : ''} guide inspirant${formData.gender === 'girl' ? 'e' : ''} pour tous les enfants, montrant que chaque passion peut mener à de grandes découvertes sur soi-même et sur le monde.
+Grâce à cette précieuse leçon, ${characterName} devint un${gender.agreement} guide inspirant${gender.agreement} pour tous les enfants, montrant que chaque passion peut mener à de grandes découvertes.
 
-Et depuis ce jour, Sam vécut de nombreuses aventures, toujours guidé${formData.gender === 'girl' ? 'e' : ''} par cette sagesse précieuse.`
+Et depuis ce jour, ${characterName} vécut de nombreuses aventures, toujours guidé${gender.agreement} par cette sagesse précieuse.`
         );
 
         return storyGenerator();
@@ -390,7 +247,7 @@ Et depuis ce jour, Sam vécut de nombreuses aventures, toujours guidé${formData
 
       // Simulate API delay
       await new Promise(resolve => setTimeout(resolve, 3000));
-      
+
       setStoryText(sampleStory);
       setCurrentStep(6);
     } catch (error) {
@@ -766,7 +623,7 @@ Et depuis ce jour, Sam vécut de nombreuses aventures, toujours guidé${formData
               <div className="prose prose-lg max-w-none mb-8">
                 <div className="bg-gradient-to-r from-yellow-50 to-orange-50 rounded-2xl p-6 border-l-4 border-orange-300">
                   <p className="text-gray-800 leading-relaxed whitespace-pre-wrap text-lg font-serif">
-                    {storyText || "Il était une fois, une merveilleuse histoire qui attendait d'être racontée..."}
+                    {storyText || "Once upon a time, there was a wonderful story waiting to be told..."}
                   </p>
                 </div>
               </div>
